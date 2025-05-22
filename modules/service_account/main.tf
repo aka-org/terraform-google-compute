@@ -1,7 +1,11 @@
+resource "random_id" "sa_suffix" {
+  byte_length = 4
+}
+
 resource "google_service_account" "vm_sa" {
 
   project      = var.project_id
-  account_id   = var.sa_id
+  account_id   = "${var.sa_id}-${random_id.sa_suffix.hex}"
   display_name = var.sa_description
 }
 
