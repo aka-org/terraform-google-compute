@@ -64,7 +64,7 @@ module "compute" {
 | Name            | Description                                      | Type     | Default   |
 |-----------------|--------------------------------------------------|----------|-----------|
 | project_id      | The GCP project ID.                              | string   | n/a       |
-| sa_id           | The id of the VM service account (optional).     | string   | ""        |
+| sa_id           | The prefix of the VM service account (optional).     | string   | ""        |
 | sa_description  | Description of the VM service account.           | string   | ""        |
 | sa_roles        | List of roles to assign to the service account.  | list     | []        |
 | vm_defaults     | Default config for VMs.                          | object   | n/a       |

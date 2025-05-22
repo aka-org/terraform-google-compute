@@ -5,7 +5,7 @@ variable "project_id" {
 }
 
 variable "sa_id" {
-  description = "The id of the VM service account"
+  description = "The prefix of the VM service account"
   type        = string
   default     = ""
 }
