@@ -1,3 +1,7 @@
+## 0.4.0
+### ADDED
+- Add optional secret creation.
+
 ## 0.3.0
 ### ADDED
 - Ignore changes to ip alias ranges of primary network interface.

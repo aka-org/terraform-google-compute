@@ -15,8 +15,8 @@ resource "google_compute_instance" "vms" {
   }
 
   network_interface {
-    network    = each.value.network
-    subnetwork = each.value.subnetwork
+    network            = each.value.network
+    subnetwork         = each.value.subnetwork
     subnetwork_project = var.project_id
     access_config {}
   }

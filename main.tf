@@ -1,3 +1,10 @@
+module "secrets" {
+  source        = "./modules/secrets"
+  project_id    = var.project_id
+  secrets       = var.secrets
+  secret_values = var.secret_values
+}
+
 module "service_account" {
   source         = "./modules/service_account"
   project_id     = var.project_id
@@ -32,5 +39,8 @@ module "compute" {
   source     = "./modules/compute"
   project_id = var.project_id
   vms        = local.vms
-  depends_on = [module.service_account]
+  depends_on = [
+    module.service_account,
+    module.secrets
+  ]
 }
