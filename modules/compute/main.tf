@@ -51,5 +51,9 @@ resource "google_compute_instance" "vms" {
     ) : null
   )
 
+  lifecycle {
+    ignore_changes = [network_interface[0].alias_ip_range]
+  }
+
   tags = each.value.tags
 }
