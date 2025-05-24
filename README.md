@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module provisions Google Compute Engine (GCE) instances and related resources, including optional service accounts. It is designed to be used after creating a GCP project and enabling required APIs/service accounts (such as with the [terraform-google-project](https://github.com/aka-org/terraform-google-project) module).
+This module provisions Google Compute Engine (GCE) instances and related resources, including optional service accounts and secrets. It is designed to be used after creating a GCP project and enabling required APIs/service accounts (such as with the [terraform-google-project](https://github.com/aka-org/terraform-google-project) module).
 
 ## Table of Contents
 - Requirements
@@ -32,6 +32,8 @@ module "compute" {
   sa_id        = "my-vm-sa" # optional, creates a service account if set
   sa_roles     = ["roles/compute.viewer"] # optional
   sa_description = "My VM Service Account" # optional
+  secret         = [{id="my-secret" add_version=true}] # optional, creates a secret object for each list item
+  secret_values  = {"my-secret"="my-secret-value"} # optional, used to map values to secret objects
 
   vm_defaults = {
     zone                = "us-central1-a"
@@ -64,7 +66,9 @@ module "compute" {
 | Name            | Description                                      | Type     | Default   |
 |-----------------|--------------------------------------------------|----------|-----------|
 | project_id      | The GCP project ID.                              | string   | n/a       |
-| sa_id           | The prefix of the VM service account (optional).     | string   | ""        |
+| secret          | List of secret objects to be created (optional). | list(object)   | []  |
+| secret_values   | Map of secret key-value pairs (optional).        | map      | {}  |
+| sa_id           | The prefix of the VM service account (optional). | string   | ""        |
 | sa_description  | Description of the VM service account.           | string   | ""        |
 | sa_roles        | List of roles to assign to the service account.  | list     | []        |
 | vm_defaults     | Default config for VMs.                          | object   | n/a       |
@@ -80,11 +84,14 @@ To apply this module, the following are required:
 
 ### APIs
 - Compute Engine API (`compute.googleapis.com`)
+- Secret manager API (`secretmanager.googleapis.com`) # optional, if creating secrets
+- IAM API (`iam.googleapis.com`) # optional, if creating a service account
 
 ### Service Account Roles
 The service account running Terraform must have at least:
 - `roles/compute.instanceAdmin.v1`
 - `roles/iam.serviceAccountUser` (if creating service accounts)
+- `roles/secretmanager.admin` (if creating secrets)
 - `roles/compute.viewer`
 
 ## Changelog
