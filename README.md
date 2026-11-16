@@ -7,11 +7,10 @@ This module provisions Google Compute Engine (GCE) instances and related resourc
 ## Table of Contents
 - Requirements
 - Usage
-- Module Variables
-- Outputs
+- Inputs and outputs
 - Secrets
-- APIs and Service Account Prerequisites
 - Development
+- APIs and Service Account Prerequisites
 - Changelog
 - License
 
@@ -64,22 +63,30 @@ module "compute" {
 }
 ```
 
-## Module Variables
-| Name            | Description                                      | Type     | Default   |
-|-----------------|--------------------------------------------------|----------|-----------|
-| project_id      | The GCP project ID.                              | string   | n/a       |
-| secrets         | List of secret objects to be created (optional): `id`, `add_version`, `value_version` (default 1). | list(object) | [] |
-| secret_values   | Map of secret id to value, ephemeral (optional; see Secrets). | map(string) | {} |
-| sa_id           | The prefix of the VM service account (optional). | string   | ""        |
-| sa_description  | Description of the VM service account.           | string   | ""        |
-| sa_roles        | List of roles to assign to the service account.  | list     | []        |
-| vm_defaults     | Default config for VMs.                          | object   | n/a       |
-| vms             | List of VMs to create (with optional overrides). | list     | []        |
+## Inputs and outputs
+
+<!-- BEGIN_TF_DOCS -->
+## Inputs
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | :------: |
+| project\_id | The id of the host project | `string` | n/a | yes |
+| vm\_defaults | DRY config of VMs | <pre>object({<br/>    zone                = string<br/>    network             = string<br/>    subnetwork          = string<br/>    image               = string<br/>    machine_type        = string<br/>    disk_size           = number<br/>    disk_type           = string<br/>    labels              = map(string)<br/>    cloud_init          = string<br/>    cloud_init_data     = map(string)<br/>    startup_script      = string<br/>    startup_script_data = map(string)<br/>    admin_ssh_keys      = list(string)<br/>    tags                = list(string)<br/>  })</pre> | n/a | yes |
+| sa\_description | Description of the VM service account | `string` | `""` | no |
+| sa\_id | The prefix of the VM service account | `string` | `""` | no |
+| sa\_roles | List of roles to be assigned to the VM service account | `list(string)` | `[]` | no |
+| secret\_values | Map of secret id to the value of its version. Ephemeral: used only to write the version, never stored in state or in a plan file | `map(string)` | `{}` | no |
+| secrets | List of Secret objects to be created | <pre>list(object({<br/>    id          = string<br/>    add_version = bool<br/>    # Bump to store the value passed in secret_values as a new version:<br/>    # the value itself is never kept in state, so Terraform can't see it<br/>    # change.<br/>    value_version = optional(number, 1)<br/>  }))</pre> | `[]` | no |
+| vms | List of VMs to be created with optional overrides | <pre>list(object({<br/>    name                = string<br/>    zone                = optional(string)<br/>    network             = optional(string)<br/>    subnetwork          = optional(string)<br/>    image               = optional(string)<br/>    machine_type        = optional(string)<br/>    disk_size           = optional(number)<br/>    disk_type           = optional(string)<br/>    labels              = optional(map(string))<br/>    cloud_init          = optional(string)<br/>    cloud_init_data     = optional(map(string))<br/>    startup_script      = optional(string)<br/>    startup_script_data = optional(map(string))<br/>    tags                = optional(list(string))<br/>    admin_ssh_keys      = optional(list(string))<br/>  }))</pre> | `[]` | no |
 
 ## Outputs
-- `sa_email`: VM service account email (if created)
-- `sa_id`: VM service account id (if created)
-- `sa_name`: VM service account fully-qualified name (if created)
+
+| Name | Description |
+| ---- | ----------- |
+| sa\_email | VM service account email |
+| sa\_id | VM service account id |
+| sa\_name | VM service account fully-qualified name |
+<!-- END_TF_DOCS -->
 
 ## Secrets
 Each entry of `secrets` creates a Secret Manager secret. With `add_version = false` the secret is created empty, for a value added outside Terraform (`gcloud secrets versions add`). With `add_version = true` the module writes the value found under the secret's id in `secret_values` as a version.
@@ -110,6 +117,7 @@ What a machine needs to work on this module:
 |---|---|---|
 | [Terraform](https://developer.hashicorp.com/terraform/install) | >= 1.11.4 | `fmt`, `validate` |
 | [TFLint](https://github.com/terraform-linters/tflint) | >= 0.50 | lint (`.tflint.hcl`) |
+| [terraform-docs](https://terraform-docs.io/user-guide/installation/) | >= 0.25 | the README's Inputs and Outputs tables (`.terraform-docs.yml`) |
 | git | any | |
 
 Nothing here needs Google Cloud credentials: `validate` and `tflint` read only the configuration.
@@ -120,7 +128,10 @@ The checks CI runs (`.github/workflows/ci.yml`), from the repository root:
 terraform fmt -check -recursive -diff
 terraform init -backend=false && terraform validate
 tflint --init && tflint --recursive
+terraform-docs --output-check .
 ```
+
+After changing a variable or an output, run `terraform-docs .` to rewrite the README's tables.
 
 CI validates twice: on the lowest supported Google provider (6.23.0) and on the newest release the constraint allows. To validate on the lowest locally, change the `google` constraint in every `versions.tf` to `6.23.0`, run `terraform init -backend=false -upgrade && terraform validate`, and revert.
 

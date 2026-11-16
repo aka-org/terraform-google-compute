@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 ### ADDED
 - `secrets[].value_version` (default 1).
 - The `random` provider is declared in `required_providers`; every submodule declares the providers it uses.
-- CI: `terraform fmt`, `validate` on the lowest and newest supported provider, TFLint.
+- CI: `terraform fmt`, `validate` on the lowest and newest supported provider, TFLint, and a check that the README's Inputs and Outputs tables match the code (generated with terraform-docs).
 - README: "Secrets" and "Development".
 ### FIXED
 - `secrets` defaults to `[]`, as documented (it was required).
