@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### ADDED
+- Tests (`tests/`, `terraform test`) that plan and apply the module against mocked providers; CI runs them on the lowest and newest supported Google provider.
+- CI also runs weekly, and lints with TFLint's Google ruleset.
+- Releases are made by CI from the changelog's newest version (`.github/workflows/release.yml`).
+
 ## 0.5.0
 ### CHANGED
 - The Google provider constraint is a range, `>= 6.23, < 8` (was exactly `6.8.0`); validated on 6.23.0 and 7.46.2. 6.23.0 is the first release with write-only secret values.
